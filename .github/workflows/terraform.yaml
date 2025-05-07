@@ -1,0 +1,22 @@
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  ENV0_API_KEY: ${{ secrets.ENV0_API_KEY }}
+  ENV0_API_SECRET: ${{ secrets.ENV0_API_SECRET }}
+
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+      - run: terraform init
+      - run: terraform workspace select -or-create=true $(echo $GITHUB_REPOSITORY | cut -d / -f 2)
+      - run: terraform apply -auto-approve -no-color
